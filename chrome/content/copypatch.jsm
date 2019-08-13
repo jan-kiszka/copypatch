@@ -129,7 +129,8 @@ class CopyPatchAddon {
 
         var patch = "";
         while (scriptInputStream.available()) {
-            patch += scriptInputStream.read(scriptInputStream.available());
+            patch += scriptInputStream.read(scriptInputStream.available())
+                .replace(/\r/g, "");
         }
 
         var clipboardHelper =
