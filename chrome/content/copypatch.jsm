@@ -158,6 +158,13 @@ class CopyPatchAddon {
                 if (done)
                     return;
 
+                /* Get rid of O365 unsafe links */
+                patch = patch.replace(
+                    /https:\/\/[^\.]+\.safelinks\.protection\.outlook\.com\/\?url=([^&]*)&[^>\s]*/g,
+                    function(match, p1, offset, string) {
+                        return decodeURIComponent(p1);
+                    });
+
                 var clipboardHelper =
                     Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                         .getService(Components.interfaces.nsIClipboardHelper);
