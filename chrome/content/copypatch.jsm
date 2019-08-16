@@ -172,6 +172,9 @@ class CopyPatchAddon {
                         return decodeURIComponent(p1);
                     });
 
+                /* Cut off mailing list signatures after git's default */
+                patch = patch.replace(/(^-- \n[0-9\.]+\n)[^]*/m, "$1");
+
                 var clipboardHelper =
                     Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                         .getService(Components.interfaces.nsIClipboardHelper);
