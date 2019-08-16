@@ -19,6 +19,8 @@ const KEYSET_COPYPATCH = "copypatchKeys";
 const KEY_COPYPATCH = "key_copyPatch";
 const CMD_COPYPATCH = "cmd_copyPatch";
 
+Components.utils.import("resource:///modules/jsmime.jsm");
+
 class CopyPatchAddon {
     constructor(window)
     {
@@ -128,15 +130,54 @@ class CopyPatchAddon {
         service.streamMessage(msgURI, msgStream, win.msgWindow, null, false, null);
 
         var patch = "";
-        while (scriptInputStream.available()) {
-            patch += scriptInputStream.read(scriptInputStream.available())
-                .replace(/\r/g, "");
-        }
+        var done = false;
+        var emitter = {
+            startPart: function(partNum, headers)
+            {
+                if (done)
+                    return;
 
-        var clipboardHelper =
-            Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                .getService(Components.interfaces.nsIClipboardHelper);
-        clipboardHelper.copyString(patch);
+                var author = headers.get("from")[0];
+
+                patch += "From: " + author.name + " <" + author.email + ">\n";
+                patch += "Date: " + headers.get("date") + "\n";
+                patch += "Subject: " + headers.get("subject") + "\n\n";
+            },
+
+            deliverPartData: function(partNum, data)
+            {
+                if (done)
+                    return;
+
+                /* Strip Windows line-feeds */
+                patch += data.replace(/\r/g, "");
+            },
+
+            endPart: function(partNum)
+            {
+                if (done)
+                    return;
+
+                var clipboardHelper =
+                    Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                        .getService(Components.interfaces.nsIClipboardHelper);
+                clipboardHelper.copyString(patch);
+
+                done = true;
+            },
+        };
+
+        var opts = {
+            bodyformat: "decode",
+            strformat: "unicode",
+        };
+        var parser = new jsmime.MimeParser(emitter, opts);
+
+        while (scriptInputStream.available()) {
+            var data = scriptInputStream.read(scriptInputStream.available());
+            parser.deliverData(data);
+        }
+        parser.deliverEOF();
     }
 }
 
