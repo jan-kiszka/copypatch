@@ -25,9 +25,6 @@ class CopyPatchAddon {
         var doc = window.document;
 
         this.window = window;
-        this.ScriptableInputStream =
-            Components.Constructor("@mozilla.org/scriptableinputstream;1",
-                                   "nsIScriptableInputStream", "init");
 
         this.mailContent = doc.getElementById("mailContent");
 
@@ -114,30 +111,31 @@ class CopyPatchAddon {
 
         var selectedMsg = win.gFolderDisplay.selectedMessage;
         var msgURI = selectedMsg.folder.getUriForMsg(selectedMsg);
+
+        var msgStream =
+            Components.classes["@mozilla.org/network/sync-stream-listener;1"]
+                .createInstance();
+        var consumer =
+            msgStream.QueryInterface(Components.interfaces.nsIInputStream);
+        var scriptInput =
+            Components.classes["@mozilla.org/scriptableinputstream;1"]
+                .createInstance();
+        var scriptInputStream = scriptInput.QueryInterface(
+            Components.interfaces.nsIScriptableInputStream);
+        scriptInputStream.init(consumer);
+
         var service = win.messenger.messageServiceFromURI(msgURI);
+        service.streamMessage(msgURI, msgStream, win.msgWindow, null, false, null);
 
-        service.CopyMessage(msgURI, this, false, null, win.msgWindow, {});
-    }
+        var patch = "";
+        while (scriptInputStream.available()) {
+            patch += scriptInputStream.read(scriptInputStream.available());
+        }
 
-    // nsIStreamListener methods
-    onDataAvailable(request, context, inputStream, offset, count)
-    {
-        var scriptStream = new this.ScriptableInputStream(inputStream);
-        this.msg += scriptStream.read(count);
-        scriptStream.close();
-    }
-
-    onStartRequest(request, context)
-    {
-        this.msg = "";
-    }
-
-    onStopRequest(request, context, code)
-    {
         var clipboardHelper =
             Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                 .getService(Components.interfaces.nsIClipboardHelper);
-        clipboardHelper.copyString(this.msg);
+        clipboardHelper.copyString(patch);
     }
 }
 
