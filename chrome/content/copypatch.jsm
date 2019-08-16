@@ -28,9 +28,7 @@ class CopyPatchAddon {
         this.ScriptableInputStream =
             Components.Constructor("@mozilla.org/scriptableinputstream;1",
                                    "nsIScriptableInputStream", "init");
-        this.clipboardHelper =
-            Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                .getService(Components.interfaces.nsIClipboardHelper);
+
         this.mailContent = doc.getElementById("mailContent");
 
         var newCmd = doc.createElement("command");
@@ -136,7 +134,10 @@ class CopyPatchAddon {
 
     onStopRequest(request, context, code)
     {
-        this.clipboardHelper.copyString(this.msg);
+        var clipboardHelper =
+            Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                .getService(Components.interfaces.nsIClipboardHelper);
+        clipboardHelper.copyString(this.msg);
     }
 }
 
