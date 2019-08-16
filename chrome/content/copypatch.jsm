@@ -28,8 +28,6 @@ class CopyPatchAddon {
         this.ScriptableInputStream =
             Components.Constructor("@mozilla.org/scriptableinputstream;1",
                                    "nsIScriptableInputStream", "init");
-        this.messengerInstance = Components.classes["@mozilla.org/messenger;1"]
-            .createInstance(Components.interfaces.nsIMessenger);
         this.clipboardHelper =
             Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                 .getService(Components.interfaces.nsIClipboardHelper);
@@ -118,7 +116,7 @@ class CopyPatchAddon {
 
         var selectedMsg = win.gFolderDisplay.selectedMessage;
         var msgURI = selectedMsg.folder.getUriForMsg(selectedMsg);
-        var service = this.messengerInstance.messageServiceFromURI(msgURI);
+        var service = win.messenger.messageServiceFromURI(msgURI);
 
         service.CopyMessage(msgURI, this, false, null, win.msgWindow, {});
     }
