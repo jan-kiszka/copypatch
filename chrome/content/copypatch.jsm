@@ -139,7 +139,14 @@ class CopyPatchAddon {
 
                 var author = headers.get("from")[0];
 
-                patch += "From: " + author.name + " <" + author.email + ">\n";
+                /*
+                 * Strip "[ext]" tag in front of the sender name, proudly
+                 * presented by Siemens IT for emails with Siemens addresses
+                 * coming in via external lists.
+                 */
+                var name = author.name.replace(/^\[ext\] /, "")
+
+                patch += "From: " + name + " <" + author.email + ">\n";
                 patch += "Date: " + headers.get("date") + "\n";
                 patch += "Subject: " + headers.get("subject") + "\n\n";
             },
