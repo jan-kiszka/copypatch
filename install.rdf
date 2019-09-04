@@ -20,7 +20,7 @@
     <em:id>copypatch@kiszka.org</em:id>
     <em:name>Copy Patch</em:name>
     <em:description>Copy email content to clipboard for application as patch</em:description>
-    <em:version>0.2</em:version>
+    <em:version>0.3</em:version>
     <em:type>2</em:type>
     <em:bootstrap>true</em:bootstrap>
     <em:creator>Jan Kiszka</em:creator>
