@@ -25,11 +25,11 @@ ARCHIVE_NAME=$(PACKAGE_NAME)-$(RELEASE_TAG).xpi
 PACKAGE_FILES= \
 	$(shell find chrome) \
 	chrome.manifest \
-	install.rdf \
+	manifest.json \
 	bootstrap.js \
 	COPYING
 
-UPDATE_VERSION="s|    <em:version>.*|    <em:version>$(VERSION)</em:version>|"
+UPDATE_VERSION='s|"version":.*|"version": "$(VERSION)",|'
 
 all package: clean $(PACKAGE_FILES)
 	zip -r $(ARCHIVE_NAME) $(PACKAGE_FILES)
@@ -46,8 +46,8 @@ release:
 		echo "Working directory is dirty!";	\
 		exit 1;					\
 	fi
-	${Q}sed -i $(UPDATE_VERSION) install.rdf
-	git commit -s install.rdf -m "Bump version number"
+	${Q}sed -i $(UPDATE_VERSION) manifest.json
+	git commit -s manifest.json -m "Bump version number"
 	git tag -as $(VERSION) -m "Release $(VERSION)"
 
 .PHONY: clean release
