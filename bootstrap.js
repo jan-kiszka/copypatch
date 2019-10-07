@@ -13,23 +13,26 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
+function initWindow(window)
+{
+    if (window.document.readyState == "complete") {
+        copyPatchInit(window);
+    } else {
+        window.addEventListener("load", function listener() {
+                copyPatchInit(window);
+            }, { once: true });
+    }
+}
+
 var WindowListener = {
     onOpenWindow: function(xulWindow)
     {
-        var window = xulWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                              .getInterface(Components.interfaces.nsIDOMWindow);
-
-        window.addEventListener("load", function listener() {
-                window.removeEventListener("load", listener);
-                copyPatchInit(window);
-            });
+        initWindow(xulWindow.docShell.domWindow);
     },
 
     onCloseWindow: function(xulWindow)
     {
-        var window = xulWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                              .getInterface(Components.interfaces.nsIDOMWindow);
-        copyPatchDestroy(window);
+        copyPatchDestroy(xulWindow.docShell.domWindow);
     },
 
     onWindowTitleChange: function(xulWindow, newTitle) { },
@@ -39,7 +42,7 @@ function forEachOpenWindow(todo)
 {
     var windows = Services.wm.getEnumerator(null);
     while (windows.hasMoreElements()) {
-        todo(windows.getNext().QueryInterface(Components.interfaces.nsIDOMWindow));
+        todo(windows.getNext());
     }
 }
 
@@ -47,7 +50,7 @@ function startup(data, reason)
 {
     Components.utils.import("chrome://copypatch/content/copypatch.jsm");
 
-    forEachOpenWindow(copyPatchInit);
+    forEachOpenWindow(initWindow);
     Services.wm.addListener(WindowListener);
 }
 
