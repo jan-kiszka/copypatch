@@ -11,28 +11,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-Components.utils.import("resource://gre/modules/Services.jsm");
-
-function initWindow(window)
-{
-    if (window.document.readyState == "complete") {
-        copyPatchInit(window);
-    } else {
-        window.addEventListener("load", function listener() {
-                copyPatchInit(window);
-            }, { once: true });
-    }
-}
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var WindowListener = {
+    async loadIntoWindow(window) {
+        if (window.document.readyState != "complete") {
+            // Make sure the window load has completed.
+            await new Promise(resolve => {
+                window.addEventListener("load", resolve, { once: true });
+            });
+        }
+
+        copyPatchInit(window);
+    },
+
     onOpenWindow: function(xulWindow)
     {
-        initWindow(xulWindow.docShell.domWindow);
+        let domWindow = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                                 .getInterface(Ci.nsIDOMWindow);
+        this.loadIntoWindow(domWindow);
     },
 
     onCloseWindow: function(xulWindow)
     {
-        copyPatchDestroy(xulWindow.docShell.domWindow);
+        let domWindow = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                                 .getInterface(Ci.nsIDOMWindow);
+        copyPatchDestroy(domWindow);
     },
 
     onWindowTitleChange: function(xulWindow, newTitle) { },
@@ -42,7 +46,8 @@ function forEachOpenWindow(todo)
 {
     var windows = Services.wm.getEnumerator(null);
     while (windows.hasMoreElements()) {
-        todo(windows.getNext());
+        let domWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
+        todo(domWindow);
     }
 }
 
@@ -50,7 +55,7 @@ function startup(data, reason)
 {
     Components.utils.import("chrome://copypatch/content/copypatch.jsm");
 
-    forEachOpenWindow(initWindow);
+    forEachOpenWindow(WindowListener.loadIntoWindow);
     Services.wm.addListener(WindowListener);
 }
 
