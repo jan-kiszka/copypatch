@@ -175,6 +175,23 @@ class CopyPatchAddon {
                 /* Cut off mailing list signatures after git's default */
                 patch = patch.replace(/(^-- \n[0-9\.]+\n)[^]*/m, "$1");
 
+                /*
+                 * Warn if signed-offs are present but the author didn't
+                 * provide one.
+                 */
+                if (patch.indexOf("\nSigned-off-by: ") >= 0) {
+                    var lastFrom = null;
+
+                    var lastFromStart = patch.lastIndexOf("\nFrom: ");
+                    if (lastFromStart >= 0) {
+                        var lastFromEnd = patch.indexOf("\n", lastFromStart + 1);
+                        if (lastFromEnd >= 0)
+                            lastFrom = patch.substring(lastFromStart + 7, lastFromEnd + 1);
+                    }
+                    if (lastFrom == null || patch.indexOf("\nSigned-off-by: " + lastFrom) < 0)
+                        win.alert("WARNING: Author did not sign off the patch or email addresses differ.");
+                }
+
                 var clipboardHelper =
                     Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                         .getService(Components.interfaces.nsIClipboardHelper);
