@@ -180,7 +180,7 @@ class CopyPatchAddon {
                  * provide one.
                  */
                 if (patch.indexOf("\nSigned-off-by: ") >= 0) {
-                    var msg = patch.split("---\n")[0];
+                    var msg = patch.split("\n---\n")[0];
                     var lastFrom = null;
 
                     var lastFromStart = msg.lastIndexOf("From: ");
