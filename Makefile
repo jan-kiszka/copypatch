@@ -1,7 +1,7 @@
 #
 # Copy Patch Thunderbird Add-On
 #
-# Copyright (c) Jan Kiszka, 2019
+# Copyright (c) Jan Kiszka, 2019-2020
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@web.de>
@@ -19,7 +19,7 @@ endif
 
 PACKAGE_NAME=copypatch
 
-RELEASE_TAG=$(shell git describe --match "[0-9].[0-9]*")
+RELEASE_TAG=$(shell git describe --match "[0-9].[0-9]*" --dirty)
 ARCHIVE_NAME=$(PACKAGE_NAME)-$(RELEASE_TAG).xpi
 
 PACKAGE_FILES= \
