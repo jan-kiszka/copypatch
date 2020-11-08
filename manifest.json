@@ -3,7 +3,7 @@
   "applications": {
     "gecko": {
       "id": "copypatch@kiszka.org",
-      "strict_min_version": "68.0"
+      "strict_min_version": "78.4.0"
     }
   },
   "name": "Copy Patch",
@@ -15,8 +15,26 @@
     "32": "copypatch.png",
     "64": "copypatch64.png"
   },
-  "legacy": {
-    "type" : "bootstrap"
+  "background": {
+    "scripts": [
+      "background-script.js"
+    ]
+  },
+  "permissions": [
+    "messagesModify",
+    "clipboardWrite"
+  ],
+  "message_display_action": {
+    "default_icon": "copypatch64.png",
+    "default_title": "Copy Patch"
+  },
+  "commands": {
+    "copyPatch": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+P"
+      },
+      "description": "Copy as patch"
+    }
   },
   "experiment_apis": {
     "CopyPatch": {

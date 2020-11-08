@@ -72,10 +72,8 @@ function do_getSelectedMessage(windowId)
     }
     parser.deliverEOF();
 
-    let author = msgHeader.get("from")[0];
     let hdr = {
-        author_name:    author.name,
-        author_email:   author.email,
+        from:           msgHeader.get("from"),
         date:           msgHeader.get("date"),
         subject:        msgHeader.get("subject")
     };
