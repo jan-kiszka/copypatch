@@ -31,6 +31,15 @@ function main()
         }
         if (request.action === "clipboardWrite") {
             navigator.clipboard.writeText(request.text);
+
+            messenger.messageDisplayAction.setBadgeBackgroundColor(
+                {tabId: sender.tab.id, color: "green"});
+            messenger.messageDisplayAction.setBadgeText(
+                {tabId: sender.tab.id, text: "✔"});
+            setTimeout(() => {
+                messenger.messageDisplayAction.setBadgeText(
+                    {tabId: sender.tab.id, text: null});
+            }, 500);
         }
     });
 
