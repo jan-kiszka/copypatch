@@ -27,6 +27,7 @@ PACKAGE_FILES= \
 	chrome.manifest \
 	manifest.json \
 	bootstrap.js \
+	copypatch*.png \
 	COPYING
 
 UPDATE_VERSION='s|"version":.*|"version": "$(VERSION)",|'
