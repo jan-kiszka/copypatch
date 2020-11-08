@@ -28,6 +28,7 @@ PACKAGE_FILES= \
 	manifest.json \
 	bootstrap.js \
 	copypatch*.png \
+	api/CopyPatch/ \
 	COPYING
 
 UPDATE_VERSION='s|"version":.*|"version": "$(VERSION)",|'
