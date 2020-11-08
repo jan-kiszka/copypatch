@@ -68,7 +68,29 @@ async function copyPatch()
         if (!lastFrom) {
             window.alert("WARNING: No valid author found.");
         } else if (patchHead.indexOf("\nSigned-off-by: " + lastFrom) < 0) {
-            window.alert("WARNING: Author and signed-off addresses differ.");
+            let replyTo = null;
+            if (msg.header.replyTo) {
+                replyTo = formatAddress(msg.header.replyTo[0]);
+            }
+            if (replyTo && patchHead.indexOf("\nSigned-off-by: " + replyTo) >= 0) {
+                patch = patch.replace("\nFrom: " + lastFrom + "\n",
+                                      "\nFrom: " + replyTo + "\n");
+            } else {
+                let signedOfEnd = patchHead.indexOf("\n", signedOfIndex + 1);
+                if (signedOfEnd < 0) {
+                    signedOfEnd = patchHead.length;
+                }
+                let signer = patchHead.substring(signedOfIndex + 16, signedOfEnd);
+                let align = window.confirm(
+                    "WARNING: Author and signed-off addresses differ:\n\n" +
+                    "Author: " + lastFrom + "\n" +
+                    "Signer: " + signer + "\n\n" +
+                    "Set author to signer address?");
+                if (align) {
+                    patch = patch.replace("\nFrom: " + lastFrom + "\n",
+                                          "\nFrom: " + signer + "\n");
+                }
+            }
         }
 
         /* Remove leading newline again. */

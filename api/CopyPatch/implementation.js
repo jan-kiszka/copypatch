@@ -74,6 +74,7 @@ function do_getSelectedMessage(windowId)
 
     let hdr = {
         from:           msgHeader.get("from"),
+        replyTo:        msgHeader.get("reply-to"),
         date:           msgHeader.get("date"),
         subject:        msgHeader.get("subject")
     };
