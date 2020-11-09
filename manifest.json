@@ -21,6 +21,7 @@
     ]
   },
   "permissions": [
+    "messagesRead",
     "messagesModify",
     "clipboardWrite"
   ],

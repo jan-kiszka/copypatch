@@ -58,6 +58,17 @@ function main()
             messenger.tabs.executeScript(tabs[0].id, {file: "content-script.js"});
         }
     });
+
+    messenger.messageDisplay.onMessageDisplayed.addListener(async (tab, message) => {
+        msg = await messenger.CopyPatch.getSelectedMessage(tab.windowId);
+
+        /* detect patch pattern in the body */
+        if (msg.body.indexOf("\n---") >= 0 && msg.body.indexOf("\n+++") >= 0) {
+            messenger.messageDisplayAction.enable(tab.id);
+        } else {
+            messenger.messageDisplayAction.disable(tab.id);
+        }
+    });
 }
 
 main();
