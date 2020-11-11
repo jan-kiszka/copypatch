@@ -55,7 +55,10 @@ function main()
         let window = await getCurrentWindow();
         if (window) {
             let tabs = await messenger.tabs.query({windowId: window.id});
-            messenger.tabs.executeScript(tabs[0].id, {file: "content-script.js"});
+            if (await messenger.messageDisplayAction.isEnabled({tabId: tabs[0].id})) {
+                messenger.tabs.executeScript(tabs[0].id,
+                                             {file: "content-script.js"});
+            }
         }
     });
 
