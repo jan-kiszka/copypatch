@@ -41,10 +41,9 @@ function do_getSelectedMessage(windowId)
     let emitter = {
         startPart: function(partNum, header)
         {
-            if (done) {
-                return;
+            if (!msgHeader) {
+                msgHeader = header;
             }
-            msgHeader = header;
         },
 
         deliverPartData: function(partNum, data)
