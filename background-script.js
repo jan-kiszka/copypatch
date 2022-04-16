@@ -66,7 +66,7 @@ function main()
         msg = await messenger.CopyPatch.getSelectedMessage(tab.windowId);
 
         /* detect patch pattern in the body */
-        if (msg.body.indexOf("\n---") >= 0 && msg.body.indexOf("\n+++") >= 0) {
+        if ((msg.body.indexOf("\n---") >= 0 && msg.body.indexOf("\n+++") >= 0) || msg.body.indexOf("\ndiff --git") >= 0) {
             messenger.messageDisplayAction.enable(tab.id);
         } else {
             messenger.messageDisplayAction.disable(tab.id);
