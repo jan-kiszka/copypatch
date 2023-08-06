@@ -11,7 +11,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { parse5322 } from "./email-address-parser/email-addresses.mjs";
+import {parse5322} from "./email-address-parser/email-addresses.mjs";
 
 // There is no real need for these functions to be async. But being able to use
 // the .then() callback of the return value for further manipulations is quite handy.
@@ -73,7 +73,7 @@ async function getMsgData(messageId) {
     }
 
     return {
-        header: { date, from, replyTo, subject },
+        header: {date, from, replyTo, subject},
         body,
         isPatch: (body.indexOf("\n---") >= 0 && body.indexOf("\n+++") >= 0) || body.indexOf("\ndiff --git") >= 0
     }
@@ -92,12 +92,12 @@ function main() {
             navigator.clipboard.writeText(request.text);
 
             messenger.messageDisplayAction.setBadgeBackgroundColor(
-                { tabId: sender.tab.id, color: "green" });
+                {tabId: sender.tab.id, color: "green"});
             messenger.messageDisplayAction.setBadgeText(
-                { tabId: sender.tab.id, text: "✔" });
+                {tabId: sender.tab.id, text: "✔"});
             setTimeout(() => {
                 messenger.messageDisplayAction.setBadgeText(
-                    { tabId: sender.tab.id, text: null });
+                    {tabId: sender.tab.id, text: null});
             }, 500);
             return Promise.resolve();
         }
@@ -105,17 +105,17 @@ function main() {
     });
 
     messenger.messageDisplayAction.onClicked.addListener(tab => {
-        messenger.tabs.executeScript(tab.id, { file: "content-script.js" });
+        messenger.tabs.executeScript(tab.id, {file: "content-script.js"});
     });
 
     messenger.commands.onCommand.addListener(async (name, tab) => {
         if (name !== "copyPatch") {
             return;
         }
-        if (await messenger.messageDisplayAction.isEnabled({ tabId: tab.id })) {
-            messenger.tabs.executeScript(
-                tab.id,
-                { file: "content-script.js" }
+
+        if (await messenger.messageDisplayAction.isEnabled({tabId: tab.id})) {
+            messenger.tabs.executeScript(tab.id,
+                                         {file: "content-script.js"}
             );
         }
     });
