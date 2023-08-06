@@ -115,8 +115,7 @@ function main() {
 
         if (await messenger.messageDisplayAction.isEnabled({tabId: tab.id})) {
             messenger.tabs.executeScript(tab.id,
-                                         {file: "content-script.js"}
-            );
+                                         {file: "content-script.js"});
         }
     });
 
