@@ -35,21 +35,5 @@
       },
       "description": "Copy as patch"
     }
-  },
-  "experiment_apis": {
-    "CopyPatch": {
-      "schema": "api/CopyPatch/schema.json",
-      "parent": {
-        "scopes": [
-          "addon_parent"
-        ],
-        "paths": [
-          [
-            "CopyPatch"
-          ]
-        ],
-        "script": "api/CopyPatch/implementation.js"
-      }
-    }
   }
 }

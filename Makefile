@@ -28,7 +28,6 @@ PACKAGE_FILES= \
 	background.html \
 	background-script.js \
 	content-script.js \
-	api/CopyPatch/ \
 	node_modules/email-addresses/LICENSE \
 	node_modules/email-addresses/lib/email-addresses.js \
 	COPYING
