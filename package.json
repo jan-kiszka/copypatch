@@ -1,0 +1,12 @@
+{
+  "name": "copypatch",
+  "description": "Copy email content to clipboard for application as patch",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jan-kiszka/copypatch.git"
+  },
+  "license": "MPL-2.0",
+  "dependencies": {
+    "email-addresses": "^5.0.0"
+  }
+}
