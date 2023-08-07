@@ -11,18 +11,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-async function getCurrentWindow()
-{
-    let windows = await messenger.windows.getAll();
-
-    for (let window of windows) {
-        if ((window.type === "messageDisplay" || window.type === "normal")
-            && window.focused === true)
-            return window;
-    }
-    return null;
-}
-
 function main()
 {
     messenger.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -49,18 +37,13 @@ function main()
         messenger.tabs.executeScript(tab.id, {file: "content-script.js"});
     });
 
-    messenger.commands.onCommand.addListener(async (name) => {
+    messenger.commands.onCommand.addListener(async (name, tab) => {
         if (name !== "copyPatch") {
             return;
         }
 
-        let window = await getCurrentWindow();
-        if (window) {
-            let tabs = await messenger.tabs.query({windowId: window.id});
-            if (await messenger.messageDisplayAction.isEnabled({tabId: tabs[0].id})) {
-                messenger.tabs.executeScript(tabs[0].id,
-                                             {file: "content-script.js"});
-            }
+        if (await messenger.messageDisplayAction.isEnabled({tabId: tab.id})) {
+            messenger.tabs.executeScript(tab.id, {file: "content-script.js"});
         }
     });
 
