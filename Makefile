@@ -25,6 +25,7 @@ ARCHIVE_NAME=$(PACKAGE_NAME)-$(RELEASE_TAG).xpi
 PACKAGE_FILES= \
 	manifest.json \
 	copypatch*.png \
+	background.html \
 	background-script.js \
 	content-script.js \
 	api/CopyPatch/ \

@@ -17,9 +17,7 @@
     "64": "copypatch64.png"
   },
   "background": {
-    "scripts": [
-      "background-script.js"
-    ]
+    "page": "background.html"
   },
   "permissions": [
     "messagesRead",
