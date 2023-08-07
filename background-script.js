@@ -40,7 +40,9 @@ function main()
                 messenger.messageDisplayAction.setBadgeText(
                     {tabId: sender.tab.id, text: null});
             }, 500);
+            return Promise.resolve();
         }
+        return false;
     });
 
     messenger.messageDisplayAction.onClicked.addListener(tab => {
