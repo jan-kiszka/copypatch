@@ -9,7 +9,7 @@
   "name": "Copy Patch",
   "description": "Copy email content to clipboard for application as patch",
   "author": "Jan Kiszka",
-  "version": "2.2",
+  "version": "2.2.1",
   "homepage_url": "https://github.com/jan-kiszka/copypatch",
   "icons": {
     "32": "copypatch.png",
