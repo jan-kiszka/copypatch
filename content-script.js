@@ -13,14 +13,18 @@
 
 function formatAddress(addressObject)
 {
-    /*
-     * Strip "[ext]" tag in front of the sender name, proudly presented by
-     * Siemens IT for emails with Siemens addresses coming in via external
-     * lists.
-     */
-    let name = addressObject.name.replace(/^\[ext\] /, "");
+    if (addressObject.name) {
+        /*
+         * Strip "[ext]" tag in front of the sender name, proudly presented by
+         * Siemens IT for emails with Siemens addresses coming in via external
+         * lists.
+         */
+        let name = addressObject.name.replace(/^\[ext\] /, "");
 
-    return name + " <" + addressObject.email + ">";
+        return name + " <" + addressObject.email + ">";
+    } else {
+        return addressObject.email;
+    }
 }
 
 async function copyPatch()
