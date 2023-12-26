@@ -126,7 +126,11 @@ function main()
     });
 
     messenger.messageDisplay.onMessageDisplayed.addListener(async (tab, message) => {
-        let msg = await getMsgData(message.id);
+        let msg = null;
+
+        if (message) {
+            msg = await getMsgData(message.id);
+        }
 
         if (msg && msg.isPatch) {
             messenger.messageDisplayAction.enable(tab.id);
