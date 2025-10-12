@@ -1,7 +1,7 @@
 /*
  * Copy Patch Thunderbird Add-On
  *
- * Copyright (c) Jan Kiszka, 2019-2023
+ * Copyright (c) Jan Kiszka, 2019-2025
  * Copyright (c) John Bieling, 2023
  *
  * Authors:
@@ -35,8 +35,8 @@ function parseDisplayName(addr)
 {
     let rv = emailAddresses.parseOneAddress(addr);
     return {
-        name: rv.name,
-        email: rv.address,
+        name: rv ? rv.name : null,
+        email: rv ? rv.address: addr,
     }
 }
 
