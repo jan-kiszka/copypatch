@@ -147,11 +147,15 @@ async function showDialog(content, confirmMode)
 
 async function dialog(tabId, content, confirmMode)
 {
+    messenger.messageDisplayAction.disable(tabId);
+
     const injResults = await messenger.scripting.executeScript({
         target: {tabId: tabId},
         func: showDialog,
         args: [content, confirmMode]
     });
+
+    messenger.messageDisplayAction.enable(tabId);
 
     return injResults[0].result;
 }
