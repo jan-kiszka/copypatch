@@ -24,9 +24,10 @@ ARCHIVE_NAME=$(PACKAGE_NAME)-$(RELEASE_TAG).xpi
 
 PACKAGE_FILES= \
 	manifest.json \
-	copypatch*.png \
+	*.png \
 	background.html \
 	background-script.js \
+	dialog.js \
 	node_modules/email-addresses/LICENSE \
 	node_modules/email-addresses/lib/email-addresses.js \
 	COPYING

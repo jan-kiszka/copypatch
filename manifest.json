@@ -19,9 +19,9 @@
     "page": "background.html"
   },
   "permissions": [
+    "clipboardWrite",
     "messagesRead",
-    "messagesModify",
-    "clipboardWrite"
+    "scripting"
   ],
   "message_display_action": {
     "default_icon": "copypatch64.png",
