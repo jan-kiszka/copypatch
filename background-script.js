@@ -15,6 +15,8 @@
 
 import "./node_modules/email-addresses/lib/email-addresses.js";
 
+import { dialogWarn, dialogConfirm } from "./dialog.js"
+
 function getFirstHeader(arr)
 {
     if (Array.isArray(arr) && arr.length > 0) {
@@ -103,6 +105,11 @@ function formatAddress(addressObject)
     }
 }
 
+function replaceAngleBrackets(str)
+{
+    return str.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
 async function copyPatch(tabId)
 {
     let msgHeader = await messenger.messageDisplay.getDisplayedMessage(tabId);
@@ -144,7 +151,7 @@ async function copyPatch(tabId)
         }
 
         if (!lastFrom) {
-            window.alert("WARNING: No valid author found.");
+            await dialogWarn(tabId, "<b>WARNING:</b> No valid author found.");
         } else if (patchHead.indexOf("\nSigned-off-by: " + lastFrom) < 0) {
             let replyTo = null;
             if (msg.header.replyTo) {
@@ -160,10 +167,13 @@ async function copyPatch(tabId)
                 }
                 let signer = patchHead.substring(signedOffIndex + 16,
                                                  signedOffEnd);
-                let align = window.confirm(
-                    "WARNING: Author and signed-off addresses differ:\n\n" +
-                    "Author: " + lastFrom + "\n" +
-                    "Signer: " + signer + "\n\n" +
+                const align = await dialogConfirm(tabId,
+                    "<b>WARNING:</b> Author and signed-off addresses differ.<br><br>" +
+                    "<table cellspacing=0 cellpadding=0><tr>" +
+                    "<td valign=top>Author:&nbsp;</td><td>" + replaceAngleBrackets(lastFrom) + "</td>" +
+                    "</tr><tr>"+
+                    "<td valign=top>Signer:&nbsp;</td><td>" + replaceAngleBrackets(signer) + "</td>" +
+                    "</tr></table><br>" +
                     "Set author to signer address?");
                 if (align) {
                     patch = patch.replaceAll("\nFrom: " + lastFrom + "\n",
@@ -175,7 +185,7 @@ async function copyPatch(tabId)
         /* Remove leading newline again. */
         patch = patch.substring(1);
     } else {
-        window.alert("WARNING: No signed-off tag found.");
+        await dialogWarn(tabId, "<b>WARNING:</b> No signed-off tag found.");
     }
 
     navigator.clipboard.writeText(patch);
