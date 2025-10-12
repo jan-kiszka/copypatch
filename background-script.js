@@ -87,32 +87,112 @@ async function getMsgData(messageId)
     }
 }
 
+function formatAddress(addressObject)
+{
+    if (addressObject.name) {
+        /*
+         * Strip "[ext]" tag in front of the sender name, proudly presented by
+         * Siemens IT for emails with Siemens addresses coming in via external
+         * lists.
+         */
+        let name = addressObject.name.replace(/^\[ext\] /, "");
+
+        return name + " <" + addressObject.email + ">";
+    } else {
+        return addressObject.email;
+    }
+}
+
+async function copyPatch(tabId)
+{
+    let msgHeader = await messenger.messageDisplay.getDisplayedMessage(tabId);
+    let msg = await getMsgData(msgHeader.id);
+
+    let patch = "";
+
+    patch += "From: " + formatAddress(msg.header.from[0]) + "\n";
+    patch += "Date: " + msg.header.date + "\n";
+    patch += "Subject: " + msg.header.subject + "\n\n";
+
+    /* Strip Windows line-feeds */
+    patch += msg.body.replace(/\r/g, "");
+
+    /* Get rid of O365 unsafe links */
+    patch = patch.replaceAll(
+        /https:\/\/[^\.]+\.safelinks\.protection\.outlook\.com\/\?url=([^&]*)&[-+a-zA-Z0-9%&/=.;]*/g,
+        function(match, p1, offset, string) {
+            return decodeURIComponent(p1);
+        });
+
+    /* Cut off mailing list signatures after git's default */
+    patch = patch.replace(/(^-- \n[0-9\.]+\n)[^]*/m, "$1");
+
+    let signedOfIndex = patch.indexOf("\nSigned-off-by: ");
+    if (signedOfIndex >= 0) {
+        /* Temporarily add a newline at the beginning to simplify matching. */
+        patch = "\n" + patch;
+        signedOfIndex += 1;
+
+        let patchHead = patch.split("\n---\n")[0];
+        let lastFrom = null;
+
+        let lastFromStart = patchHead.lastIndexOf("\nFrom: ");
+        if (lastFromStart >= 0) {
+            let lastFromEnd = patchHead.indexOf("\n", lastFromStart + 1);
+            if (lastFromEnd >= 0)
+                lastFrom = patchHead.substring(lastFromStart + 7, lastFromEnd);
+        }
+
+        if (!lastFrom) {
+            window.alert("WARNING: No valid author found.");
+        } else if (patchHead.indexOf("\nSigned-off-by: " + lastFrom) < 0) {
+            let replyTo = null;
+            if (msg.header.replyTo) {
+                replyTo = formatAddress(msg.header.replyTo[0]);
+            }
+            if (replyTo && patchHead.indexOf("\nSigned-off-by: " + replyTo) >= 0) {
+                patch = patch.replaceAll("\nFrom: " + lastFrom + "\n",
+                                         "\nFrom: " + replyTo + "\n");
+            } else {
+                let signedOfEnd = patchHead.indexOf("\n", signedOfIndex + 1);
+                if (signedOfEnd < 0) {
+                    signedOfEnd = patchHead.length;
+                }
+                let signer = patchHead.substring(signedOfIndex + 16, signedOfEnd);
+                let align = window.confirm(
+                    "WARNING: Author and signed-off addresses differ:\n\n" +
+                    "Author: " + lastFrom + "\n" +
+                    "Signer: " + signer + "\n\n" +
+                    "Set author to signer address?");
+                if (align) {
+                    patch = patch.replaceAll("\nFrom: " + lastFrom + "\n",
+                                             "\nFrom: " + signer + "\n");
+                }
+            }
+        }
+
+        /* Remove leading newline again. */
+        patch = patch.substring(1);
+    } else {
+        window.alert("WARNING: No signed-off tag found.");
+    }
+
+    navigator.clipboard.writeText(patch);
+
+    messenger.messageDisplayAction.setBadgeBackgroundColor(
+        {tabId: tabId, color: "green"});
+    messenger.messageDisplayAction.setBadgeText(
+        {tabId: tabId, text: "✔"});
+    setTimeout(() => {
+        messenger.messageDisplayAction.setBadgeText(
+            {tabId: tabId, text: null});
+    }, 500);
+}
+
 function main()
 {
-    messenger.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        if (request.action === "getMsg") {
-            return browser.messageDisplay.getDisplayedMessage(sender.tab.id).then(
-                msg => getMsgData(msg.id)
-            );
-        }
-        if (request.action === "clipboardWrite") {
-            navigator.clipboard.writeText(request.text);
-
-            messenger.messageDisplayAction.setBadgeBackgroundColor(
-                {tabId: sender.tab.id, color: "green"});
-            messenger.messageDisplayAction.setBadgeText(
-                {tabId: sender.tab.id, text: "✔"});
-            setTimeout(() => {
-                messenger.messageDisplayAction.setBadgeText(
-                    {tabId: sender.tab.id, text: null});
-            }, 500);
-            return Promise.resolve();
-        }
-        return false;
-    });
-
     messenger.messageDisplayAction.onClicked.addListener(tab => {
-        messenger.tabs.executeScript(tab.id, {file: "content-script.js"});
+        copyPatch(tab.id);
     });
 
     messenger.commands.onCommand.addListener(async (name, tab) => {
@@ -121,7 +201,7 @@ function main()
         }
 
         if (await messenger.messageDisplayAction.isEnabled({tabId: tab.id})) {
-            messenger.tabs.executeScript(tab.id, {file: "content-script.js"});
+            copyPatch(tab.id);
         }
     });
 

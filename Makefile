@@ -1,7 +1,7 @@
 #
 # Copy Patch Thunderbird Add-On
 #
-# Copyright (c) Jan Kiszka, 2019-2020
+# Copyright (c) Jan Kiszka, 2019-2025
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@web.de>
@@ -27,7 +27,6 @@ PACKAGE_FILES= \
 	copypatch*.png \
 	background.html \
 	background-script.js \
-	content-script.js \
 	node_modules/email-addresses/LICENSE \
 	node_modules/email-addresses/lib/email-addresses.js \
 	COPYING
