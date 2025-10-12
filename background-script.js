@@ -65,7 +65,7 @@ function getBody(parts)
 
 async function getMsgData(messageId)
 {
-    let full = await browser.messages.getFull(messageId);
+    let full = await messenger.messages.getFull(messageId);
     let date = await getFirstHeader(full.headers["date"]);
     let from = await getAllHeader(full.headers["from"]);
     let replyTo = await getAllHeader(full.headers["reply-to"]);
