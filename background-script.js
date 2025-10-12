@@ -35,7 +35,7 @@ function getAllHeader(arr)
 
 function parseDisplayName(addr)
 {
-    let rv = emailAddresses.parseOneAddress(addr);
+    const rv = emailAddresses.parseOneAddress(addr);
     return {
         name: rv ? rv.name : null,
         email: rv ? rv.address: addr,
@@ -46,15 +46,15 @@ function parseDisplayName(addr)
 function getBody(parts)
 {
     /* First check all parts in this level */
-    for (let part of parts) {
+    for (const part of parts) {
         if (part.body && part.contentType == "text/plain") {
             return part.body;
         }
     }
     /* Now check all subparts */
-    for (let part of parts) {
+    for (const part of parts) {
         if (part.parts) {
-            let body = getBody(part.parts);
+            const body = getBody(part.parts);
             if (body) {
                 return body;
             }
@@ -65,12 +65,12 @@ function getBody(parts)
 
 async function getMsgData(messageId)
 {
-    let full = await messenger.messages.getFull(messageId);
-    let date = await getFirstHeader(full.headers["date"]);
-    let from = await getAllHeader(full.headers["from"]);
-    let replyTo = await getAllHeader(full.headers["reply-to"]);
-    let subject = await getFirstHeader(full.headers["subject"]);
-    let body = getBody(full.parts);
+    const full = await messenger.messages.getFull(messageId);
+    const date = await getFirstHeader(full.headers["date"]);
+    const from = await getAllHeader(full.headers["from"]);
+    const replyTo = await getAllHeader(full.headers["reply-to"]);
+    const subject = await getFirstHeader(full.headers["subject"]);
+    const body = getBody(full.parts);
 
     if (!body) {
         return null;
@@ -97,7 +97,7 @@ function formatAddress(addressObject)
          * Siemens IT for emails with Siemens addresses coming in via external
          * lists.
          */
-        let name = addressObject.name.replace(/^\[ext\] /, "");
+        const name = addressObject.name.replace(/^\[ext\] /, "");
 
         return name + " <" + addressObject.email + ">";
     } else {
@@ -112,8 +112,8 @@ function replaceAngleBrackets(str)
 
 async function copyPatch(tabId)
 {
-    let msgHeader = await messenger.messageDisplay.getDisplayedMessage(tabId);
-    let msg = await getMsgData(msgHeader.id);
+    const msgHeader = await messenger.messageDisplay.getDisplayedMessage(tabId);
+    const msg = await getMsgData(msgHeader.id);
 
     let patch = "";
     let result = {terminated: false};
@@ -141,12 +141,12 @@ async function copyPatch(tabId)
         patch = "\n" + patch;
         signedOffIndex += 1;
 
-        let patchHead = patch.split("\n---\n")[0];
+        const patchHead = patch.split("\n---\n")[0];
         let lastFrom = null;
 
-        let lastFromStart = patchHead.lastIndexOf("\nFrom: ");
+        const lastFromStart = patchHead.lastIndexOf("\nFrom: ");
         if (lastFromStart >= 0) {
-            let lastFromEnd = patchHead.indexOf("\n", lastFromStart + 1);
+            const lastFromEnd = patchHead.indexOf("\n", lastFromStart + 1);
             if (lastFromEnd >= 0)
                 lastFrom = patchHead.substring(lastFromStart + 7, lastFromEnd);
         }
@@ -167,8 +167,8 @@ async function copyPatch(tabId)
                 if (signedOffEnd < 0) {
                     signedOffEnd = patchHead.length;
                 }
-                let signer = patchHead.substring(signedOffIndex + 16,
-                                                 signedOffEnd);
+                const signer = patchHead.substring(signedOffIndex + 16,
+                                                   signedOffEnd);
                 result = await dialogConfirm(tabId,
                     "<b>WARNING:</b> Author and signed-off addresses differ.<br><br>" +
                     "<table cellspacing=0 cellpadding=0><tr>" +
@@ -222,11 +222,7 @@ function main()
     });
 
     messenger.messageDisplay.onMessageDisplayed.addListener(async (tab, message) => {
-        let msg = null;
-
-        if (message) {
-            msg = await getMsgData(message.id);
-        }
+        const msg = message ? await getMsgData(message.id) : null;
 
         if (msg && msg.isPatch) {
             messenger.messageDisplayAction.enable(tab.id);
