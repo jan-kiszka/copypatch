@@ -113,8 +113,12 @@ function replaceAngleBrackets(str)
 
 async function copyPatch(tabId)
 {
-    const msgHeader = await messenger.messageDisplay.getDisplayedMessage(tabId);
-    const msg = await getMsgData(msgHeader.id);
+    const msgList = await messenger.messageDisplay.getDisplayedMessages(tabId);
+    if (msgList.messages.length != 1) {
+        return;
+    }
+
+    const msg = await getMsgData(msgList.messages[0].id);
 
     let patch = "";
     let result = {terminated: false};
@@ -224,9 +228,10 @@ async function main()
         }
     });
 
-    async function updateMessageDisplayAction(tabId, message)
+    async function updateMessageDisplayAction(tabId, msgList)
     {
-        const msg = message ? await getMsgData(message.id) : null;
+        const msg = msgList.messages.length === 1 ?
+            await getMsgData(msgList.messages[0].id) : null;
 
         if (msg && msg.isPatch) {
             messenger.messageDisplayAction.enable(tabId);
@@ -235,8 +240,8 @@ async function main()
         }
     }
 
-    messenger.messageDisplay.onMessageDisplayed.addListener((tab, message) => {
-        updateMessageDisplayAction(tab.id, message);
+    messenger.messageDisplay.onMessagesDisplayed.addListener((tab, msgList) => {
+        updateMessageDisplayAction(tab.id, msgList);
     });
 
     const windows = await messenger.windows.getAll({
@@ -245,8 +250,8 @@ async function main()
     });
     for (const window of windows) {
         for (const tab of window.tabs) {
-            const message = await messenger.messageDisplay.getDisplayedMessage(tab.id);
-            updateMessageDisplayAction(tab.id, message);
+            const msgList = await messenger.messageDisplay.getDisplayedMessages(tab.id);
+            updateMessageDisplayAction(tab.id, msgList);
         }
     }
 }
