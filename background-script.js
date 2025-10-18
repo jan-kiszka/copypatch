@@ -127,11 +127,11 @@ async function copyPatch(tabId)
     /* Cut off mailing list signatures after git's default */
     patch = patch.replace(/(^-- \n[0-9\.]+\n)[^]*/m, "$1");
 
-    let signedOfIndex = patch.indexOf("\nSigned-off-by: ");
-    if (signedOfIndex >= 0) {
+    let signedOffIndex = patch.indexOf("\nSigned-off-by: ");
+    if (signedOffIndex >= 0) {
         /* Temporarily add a newline at the beginning to simplify matching. */
         patch = "\n" + patch;
-        signedOfIndex += 1;
+        signedOffIndex += 1;
 
         let patchHead = patch.split("\n---\n")[0];
         let lastFrom = null;
@@ -154,11 +154,12 @@ async function copyPatch(tabId)
                 patch = patch.replaceAll("\nFrom: " + lastFrom + "\n",
                                          "\nFrom: " + replyTo + "\n");
             } else {
-                let signedOfEnd = patchHead.indexOf("\n", signedOfIndex + 1);
-                if (signedOfEnd < 0) {
-                    signedOfEnd = patchHead.length;
+                let signedOffEnd = patchHead.indexOf("\n", signedOffIndex + 1);
+                if (signedOffEnd < 0) {
+                    signedOffEnd = patchHead.length;
                 }
-                let signer = patchHead.substring(signedOfIndex + 16, signedOfEnd);
+                let signer = patchHead.substring(signedOffIndex + 16,
+                                                 signedOffEnd);
                 let align = window.confirm(
                     "WARNING: Author and signed-off addresses differ:\n\n" +
                     "Author: " + lastFrom + "\n" +
