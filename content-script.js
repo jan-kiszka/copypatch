@@ -77,8 +77,8 @@ async function copyPatch()
                 replyTo = formatAddress(msg.header.replyTo[0]);
             }
             if (replyTo && patchHead.indexOf("\nSigned-off-by: " + replyTo) >= 0) {
-                patch = patch.replace("\nFrom: " + lastFrom + "\n",
-                                      "\nFrom: " + replyTo + "\n");
+                patch = patch.replaceAll("\nFrom: " + lastFrom + "\n",
+                                         "\nFrom: " + replyTo + "\n");
             } else {
                 let signedOfEnd = patchHead.indexOf("\n", signedOfIndex + 1);
                 if (signedOfEnd < 0) {
@@ -91,8 +91,8 @@ async function copyPatch()
                     "Signer: " + signer + "\n\n" +
                     "Set author to signer address?");
                 if (align) {
-                    patch = patch.replace("\nFrom: " + lastFrom + "\n",
-                                          "\nFrom: " + signer + "\n");
+                    patch = patch.replaceAll("\nFrom: " + lastFrom + "\n",
+                                             "\nFrom: " + signer + "\n");
                 }
             }
         }
