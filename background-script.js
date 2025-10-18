@@ -205,8 +205,10 @@ async function copyPatch(tabId)
     }
 }
 
-function main()
+async function main()
 {
+    messenger.messageDisplayAction.disable();
+
     messenger.messageDisplayAction.onClicked.addListener(tab => {
         copyPatch(tab.id);
     });
@@ -221,15 +223,31 @@ function main()
         }
     });
 
-    messenger.messageDisplay.onMessageDisplayed.addListener(async (tab, message) => {
+    async function updateMessageDisplayAction(tabId, message)
+    {
         const msg = message ? await getMsgData(message.id) : null;
 
         if (msg && msg.isPatch) {
-            messenger.messageDisplayAction.enable(tab.id);
+            messenger.messageDisplayAction.enable(tabId);
         } else {
-            messenger.messageDisplayAction.disable(tab.id);
+            messenger.messageDisplayAction.disable(tabId);
         }
+    }
+
+    messenger.messageDisplay.onMessageDisplayed.addListener((tab, message) => {
+        updateMessageDisplayAction(tab.id, message);
     });
+
+    const windows = await messenger.windows.getAll({
+        populate: true,
+        windowTypes: ["normal", "messageDisplay"]
+    });
+    for (const window of windows) {
+        for (const tab of window.tabs) {
+            const message = await messenger.messageDisplay.getDisplayedMessage(tab.id);
+            updateMessageDisplayAction(tab.id, message);
+        }
+    }
 }
 
 main();
