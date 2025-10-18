@@ -147,17 +147,42 @@ async function showDialog(content, confirmMode)
 
 async function dialog(tabId, content, confirmMode)
 {
-    messenger.messageDisplayAction.disable(tabId);
+    return new Promise(async (resolve, reject) => {
+        messenger.messageDisplayAction.disable(tabId);
 
-    const injResults = await messenger.scripting.executeScript({
-        target: {tabId: tabId},
-        func: showDialog,
-        args: [content, confirmMode]
+        function tabRemoved(id, info)
+        {
+            if (id === tabId) {
+                messenger.tabs.onRemoved.removeListener(tabRemoved);
+                resolve({terminated: true});
+            }
+        }
+        messenger.tabs.onRemoved.addListener(tabRemoved);
+
+        function tabUpdated(id, info, tab)
+        {
+            if (id === tabId) {
+                messenger.tabs.onUpdated.removeListener(tabUpdated);
+                resolve({terminated: true});
+            }
+        }
+        messenger.tabs.onUpdated.addListener(tabUpdated);
+
+        const injResults = await messenger.scripting.executeScript({
+            target: {tabId: tabId},
+            func: showDialog,
+            args: [content, confirmMode]
+        });
+        resolve({
+            terminated: injResults[0].error != undefined,
+            confirmed: injResults[0].result
+        });
+    }).then((result) => {
+        if (!result.terminated) {
+            messenger.messageDisplayAction.enable(tabId);
+        }
+        return result;
     });
-
-    messenger.messageDisplayAction.enable(tabId);
-
-    return injResults[0].result;
 }
 
 export async function dialogWarn(tabId, content)

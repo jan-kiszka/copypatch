@@ -116,6 +116,7 @@ async function copyPatch(tabId)
     let msg = await getMsgData(msgHeader.id);
 
     let patch = "";
+    let result = {terminated: false};
 
     patch += "From: " + formatAddress(msg.header.from[0]) + "\n";
     patch += "Date: " + msg.header.date + "\n";
@@ -151,7 +152,8 @@ async function copyPatch(tabId)
         }
 
         if (!lastFrom) {
-            await dialogWarn(tabId, "<b>WARNING:</b> No valid author found.");
+            result = await dialogWarn(tabId,
+                                      "<b>WARNING:</b> No valid author found.");
         } else if (patchHead.indexOf("\nSigned-off-by: " + lastFrom) < 0) {
             let replyTo = null;
             if (msg.header.replyTo) {
@@ -167,7 +169,7 @@ async function copyPatch(tabId)
                 }
                 let signer = patchHead.substring(signedOffIndex + 16,
                                                  signedOffEnd);
-                const align = await dialogConfirm(tabId,
+                result = await dialogConfirm(tabId,
                     "<b>WARNING:</b> Author and signed-off addresses differ.<br><br>" +
                     "<table cellspacing=0 cellpadding=0><tr>" +
                     "<td valign=top>Author:&nbsp;</td><td>" + replaceAngleBrackets(lastFrom) + "</td>" +
@@ -175,7 +177,7 @@ async function copyPatch(tabId)
                     "<td valign=top>Signer:&nbsp;</td><td>" + replaceAngleBrackets(signer) + "</td>" +
                     "</tr></table><br>" +
                     "Set author to signer address?");
-                if (align) {
+                if (result.confirmed) {
                     patch = patch.replaceAll("\nFrom: " + lastFrom + "\n",
                                              "\nFrom: " + signer + "\n");
                 }
@@ -185,19 +187,22 @@ async function copyPatch(tabId)
         /* Remove leading newline again. */
         patch = patch.substring(1);
     } else {
-        await dialogWarn(tabId, "<b>WARNING:</b> No signed-off tag found.");
+        result = await dialogWarn(tabId,
+                                  "<b>WARNING:</b> No signed-off tag found.");
     }
 
-    navigator.clipboard.writeText(patch);
+    if (!result.terminated) {
+        navigator.clipboard.writeText(patch);
 
-    messenger.messageDisplayAction.setBadgeBackgroundColor(
-        {tabId: tabId, color: "green"});
-    messenger.messageDisplayAction.setBadgeText(
-        {tabId: tabId, text: "✔"});
-    setTimeout(() => {
+        messenger.messageDisplayAction.setBadgeBackgroundColor(
+            {tabId: tabId, color: "green"});
         messenger.messageDisplayAction.setBadgeText(
-            {tabId: tabId, text: null});
-    }, 500);
+            {tabId: tabId, text: "✔"});
+        setTimeout(() => {
+            messenger.messageDisplayAction.setBadgeText(
+                {tabId: tabId, text: null});
+        }, 500);
+    }
 }
 
 function main()
