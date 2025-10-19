@@ -66,15 +66,16 @@ function getBody(parts)
 async function getMsgData(messageId)
 {
     const full = await messenger.messages.getFull(messageId);
+
+    const body = getBody(full.parts);
+    if (!body) {
+        return null;
+    }
+
     const date = await getFirstHeader(full.headers["date"]);
     const from = await getAllHeader(full.headers["from"]);
     const replyTo = await getAllHeader(full.headers["reply-to"]);
     const subject = await getFirstHeader(full.headers["subject"]);
-    const body = getBody(full.parts);
-
-    if (!body) {
-        return null;
-    }
 
     return {
         header: {
