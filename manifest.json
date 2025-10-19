@@ -3,7 +3,7 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "copypatch@kiszka.org",
-      "strict_min_version": "102.4.0"
+      "strict_min_version": "140.0"
     }
   },
   "name": "Copy Patch",
