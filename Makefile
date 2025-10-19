@@ -28,21 +28,14 @@ PACKAGE_FILES= \
 	background.html \
 	background-script.js \
 	dialog.js \
-	node_modules/email-addresses/LICENSE \
-	node_modules/email-addresses/lib/email-addresses.js \
 	COPYING
 
 UPDATE_VERSION='s|"version":.*|"version": "$(VERSION)",|'
 
-all package: clean node_modules $(PACKAGE_FILES)
+all package: clean $(PACKAGE_FILES)
 	zip -r $(ARCHIVE_NAME) $(PACKAGE_FILES)
 
-node_modules: package.json
-	npm install
-	sed -i 's/(this)/(globalThis)/' node_modules/email-addresses/lib/email-addresses.js
-
 distclean: clean
-	rm -rf node_modules
 
 clean:
 	rm -f $(ARCHIVE_NAME)

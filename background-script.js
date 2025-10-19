@@ -13,8 +13,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import "./node_modules/email-addresses/lib/email-addresses.js";
-
 import { dialogWarn, dialogConfirm } from "./dialog.js"
 
 function getFirstHeader(arr)
@@ -33,13 +31,10 @@ function getAllHeader(arr)
     return undefined;
 }
 
-function parseDisplayName(addr)
+async function parseDisplayName(addr)
 {
-    const rv = emailAddresses.parseOneAddress(addr);
-    return {
-        name: rv ? rv.name : null,
-        email: rv ? rv.address: addr,
-    }
+    const parsed = await messenger.messengerUtilities.parseMailboxString(addr);
+    return (parsed.length > 0) ? parsed[0] : { name: null, email: addr };
 }
 
 /* Find first text/plain body */
@@ -77,11 +72,16 @@ async function getMsgData(messageId)
     const replyTo = await getAllHeader(full.headers["reply-to"]);
     const subject = await getFirstHeader(full.headers["subject"]);
 
+    const fromParsed = from ?
+        await Promise.all(from.map(addr => parseDisplayName(addr))) : from;
+    const replyToParsed = replyTo ?
+        await Promise.all(replyTo.map(addr => parseDisplayName(addr))) : replyTo;
+
     return {
         header: {
             date: date ? new Date(date) : date,
-            from: from ? from.map(addr => parseDisplayName(addr)) : from,
-            replyTo: replyTo ? replyTo.map(addr => parseDisplayName(addr)) : replyTo,
+            from: fromParsed,
+            replyTo: replyToParsed,
             subject: subject
         },
         body: body,
